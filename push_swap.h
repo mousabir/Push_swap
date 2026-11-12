@@ -6,6 +6,23 @@
 # include <stdio.h>
 # include <stddef.h>
 
+typedef struct s_stats
+{
+	long	size;
+	long	total;
+	long	sa;
+	long	sb;
+	long	ss;
+	long	pa;
+	long	pb;
+	long	ra;
+	long	rb;
+	long	rr;
+	long	rra;
+	long	rrb;
+	long	rrr;
+}	t_stats;
+
 typedef struct s_list
 {
 	int				arg;
@@ -43,5 +60,7 @@ void	push_node(t_list **a, t_list **b);
 void	rotate_node(t_list **a);
 void	reverse_node(t_list **a, long n);
 void	ft_simeple(t_list *head, t_list *list_b);
+void	count_move(t_stats *c, char *an);
+void	init_stats(t_stats *c);
 
 #endif
