@@ -100,10 +100,17 @@ void ft_medimum(t_list **head, t_list **stack_b, long size, t_stats *c)
 {
     creat_rank(*head);
     scatter_chunks(head, stack_b, size, c);
-    while (*stack_b != NULL)
+    size--;
+    while (size >= 0)
     {
-        ft_printf("pa\n");
-        count_move(c, "pa");
-        move_a("pa", head, stack_b, c);
+        if ((*stack_b)->index == size)
+        {
+            ft_printf("pa\n");
+            count_move(c, "pa");
+            move_a("pa", head, stack_b, c);
+            size--;
+        }
+        else
+            rotate_times("rb", 1, stack_b, c);
     }
 }

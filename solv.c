@@ -34,6 +34,8 @@ void	move_a(char *an, t_list **a, t_list **b, t_stats *c)
 		reverse_node(a, c->size);
 	else if (ft_strcmp(an, "pa") == 0)
 		move_a("pb", b, a, c);
+	else if (ft_strcmp(an, "rb") == 0)
+		move_a("ra", a, b, c);
 }
 
 void	rotate_times(char *an, long times, t_list **a, t_stats *c)
