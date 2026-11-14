@@ -1,21 +1,5 @@
 #include "push_swap.h"
 
-t_bool	chek_is_dgit(char *d)
-{
-	int	i;
-
-	i = 0;
-	if (d[i] == '-' || d[i] == '+')
-		i++;
-	while (d[i])
-	{
-		if (!(d[i] >= '0' && d[i] <= '9'))
-			return (0);
-		i++;
-	}
-	return (1);
-}
-
 t_bool	cheek_option(t_option *list, char *argmnet)
 {
 	t_bool	*flag;
@@ -37,42 +21,61 @@ t_bool	cheek_option(t_option *list, char *argmnet)
 	return (1);
 }
 
-t_list	*creat_stack(char *argv, t_list *node, int find)
+t_list    *creat_stack(char *argv, t_list *node, int find)
 {
-	if (find == 0)
+    if (find == 0)
+    {
+        node->arg = ft_atoi(argv);
+        return (node);
+    }
+    else
+    {
+        node->next = ft_lstnew(ft_atoi(argv));
+        node = node->next;
+        return (node);
+    }
+}
+
+t_bool	chek_is_dgit(char *d)
+{
+	int	i;
+
+	i = 0;
+	if (d[i] == '-' || d[i] == '+')
+		i++;
+	if (d[i] == '\0')
+		return (0);
+	while (d[i])
 	{
-		node->arg = ft_atoi(argv);
-		return (node);
+		if (!(d[i] >= '0' && d[i] <= '9'))
+			return (0);
+		i++;
 	}
-	else
-	{
-		node->next = ft_lstnew(ft_atoi(argv));
-		node = node->next;
-		return (node);
-	}
+	return (1);
 }
 
 static int	add_arg(char *arg, t_option *list, t_list **node, int *find)
 {
 	if (cheek_option(list, arg))
 		return (1);
-	if (!chek_is_dgit(arg))
+	if (!chek_is_dgit(arg) || !chek_range(arg))
 		return (0);
 	*node = creat_stack(arg, *node, *find);
 	if (*node == NULL)
 		return (0);
 	*find = 1;
 	return (1);
-}
+} 
 
-t_bool	cheek_is_arg_valid(char **argv, int argc, t_option *list,
-			t_list *node)
+t_bool	cheek_is_arg_valid(char **argv, int argc, t_option *list, t_list *node)
 {
-	int	index;
-	int	find;
+	int		index;
+	int		find;
+	t_list	*head;
 
 	find = 0;
 	index = 1;
+	head = node;
 	if (argc < 2)
 		return (0);
 	while (index < argc)
@@ -81,7 +84,7 @@ t_bool	cheek_is_arg_valid(char **argv, int argc, t_option *list,
 			return (0);
 		index++;
 	}
-	if (find == 0)
+	if (find == 0 || has_dup(head))
 		return (0);
 	return (1);
 }

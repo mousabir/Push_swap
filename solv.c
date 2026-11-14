@@ -1,3 +1,29 @@
+#include "push_swap.h"
+
+long	smallest_position(t_list *head)
+{
+	int		min;
+	long	pos;
+	long	i;
+
+	if (head == NULL)
+		return (-1);
+	i = 0;
+	pos = 0;
+	min = head->arg;
+	while (head != NULL)
+	{
+		if (min > head->arg)
+		{
+			min = head->arg;
+			pos = i;
+		}
+		head = head->next;
+		i++;
+	}
+	return (pos);
+}
+
 void	move_a(char *an, t_list **a, t_list **b, t_stats *c)
 {
 	if (ft_strcmp(an, "pb") == 0)
@@ -42,22 +68,22 @@ void	bring_to_top(long pos, t_list **a, t_list **b, t_stats *c)
 	count_move(c, "pb");
 }
 
-void	ft_simeple(t_list *head, t_list *list_b, t_stats *c)
+void	ft_smeple(t_list **head, t_list **list_b, t_stats *c)
 {
 	long	size;
 	long	i;
 
-	size = ft_lstsize(head);
+	size = ft_lstsize(*head);
 	c->size = size;
 	i = 0;
-	while (head != NULL)
+	while (*head != NULL)
 	{
-		bring_to_top(smallest_position(head), &head, &list_b, c);
+		bring_to_top(smallest_position(*head), head, list_b, c);
 		c->size--;
 	}
 	while (i < size)
 	{
-		move_a("pa", &head, &list_b, c);
+		move_a("pa", head, list_b, c);
 		ft_printf("pa\n");
 		count_move(c, "pa");
 		i++;

@@ -124,3 +124,48 @@ My next challenge is deciding how to organize the execution of these operations.
 I need to make sure that the algorithm always uses the current stack state, recalculates positions when necessary, and executes the correct operations at every iteration.
 
 The goal is not only to sort the stack correctly, but also to keep the implementation clean, flexible, and easy to optimize later.
+
+# Push_swap changes
+
+## The algorithm used in this part (medium, chunk sort, O(n sqrt n))
+
+This part is the medium strategy of the subject, called with --medium. It is a chunk-based sort. The idea is to cut the numbers into about sqrt(n) groups by value, so we do not search the whole stack every time.
+
+Step 1, ranking. creat_rank copies all the values into an array, sorts the array, and gives each node an index from 0 to n-1 (its place in the sorted order). After this we work with the index and not with the real number, so negative numbers and big numbers are not a problem.
+
+Step 2, chunk size. The chunk size is the square root of n (ft_sqrt). For 100 numbers the chunk size is 10. For 4 numbers it is 2.
+
+Step 3, scatter from A to B. We keep a range of indexes, from current_min to current_max (the upper limit is not included). We look at the top of A. If its index is inside the range, we push it to B with pb. If not, we rotate A with ra. When we have pushed chunk size numbers, the range moves up by one chunk. We continue until A is empty. At this point B holds all the numbers, and the small chunks are deeper and the big chunks are on top.
+
+Step 4, bring back from B to A. We push back with pa until B is empty.
+
+Why it is O(n sqrt n): each number is pushed once, and between two pushes we rotate at most about the size of one range, which is around sqrt(n) steps in a good case. So n numbers times sqrt(n) gives n sqrt(n).
+
+Important note: the pa phase as written now does not sort the result yet. It pops B from the top, so inside each chunk the numbers come back in the wrong order, and the stack A is only sorted by chunks. To sort it fully, before each pa we must bring the biggest index of B to the top of B (with rb or rrb, choosing the shorter way), and then do pa. This is also what will reduce the number of moves for the 100 and 500 targets. It is in the still to do list below.
+
+## What was wrong and what we changed
+
+1. stack_b in main_porpes was a full struct (t_list stack_b) used as a fake first node. It was on the stack memory, not malloc. This caused the invalid pointer error when freeing. Now stack_b is a pointer set to NULL, and an empty stack is just NULL.
+
+2. ft_medimum and ft_smeple now take stack_b as a pointer to pointer (t_list **), the same as head. The prototypes in push_swap.h were changed too. main_porpes sends &stack_b and frees it with free_list(stack_b).
+
+3. In ft_medimum, the while loop of pa was checking stack_b itself, which is never NULL. Now it checks *stack_b. This fixed the segfault in push_node. The debug printf was removed.
+
+4. In scatter_chunks, the upper limit is now strict (index < current_max) and the counter check is pushed >= chunks_size. This stops the infinite ra loop.
+
+5. Printing and counting: pb now goes through bring_to_top(0, ...), which prints pb and counts it. The pa loop in ft_medimum prints pa and counts it before calling move_a. move_a itself does not print or count, so nothing is counted twice.
+
+6. Parser (check file): a lone + or - or an empty string is now an Error. A number outside the int range is now an Error (chek_range). Duplicates are now an Error (has_dup). The two new functions are in a new file, check_utils.c, and push_swap.h includes limits.h.
+
+## Why the infinite loop with 8 to 10 numbers happened
+
+The input had duplicate numbers. asind_index gave the same index to equal numbers, so some indexes did not exist, a chunk never became full, and ra repeated forever. The subject says duplicates must give Error, so the duplicate check fixes it.
+
+## Still to do
+
+1. Use adaptive as the default strategy when no flag is given.
+2. Write the complex strategy O(n log n) and the adaptive strategy.
+3. Compute the disorder before any move.
+4. Write the bench output on stderr.
+5. Improve the pa phase (bring the biggest number of B to the top first) and test 100 and 500 numbers with wc -l.
+6. Add -g to the Makefile flags while testing, and check for leaks.

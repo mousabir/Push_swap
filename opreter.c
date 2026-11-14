@@ -43,3 +43,74 @@ void	count_move(t_stats *c, char *an)
 		c->rrr++;
 	c->total++;
 }
+
+int ft_sqrt(int nb)
+{
+    long long i;
+
+    if (nb <= 0)
+        return (0);
+    i = 0;
+    while (i * i <= nb)
+        i++;
+    return (i - 1);
+}
+
+void sort_array(int *array, int size)
+{
+	int (i), (j), (box);
+	i = 0;
+	while (i < size)
+	{
+		j = 0;
+		while (j < size)
+		{
+			if (array[i] < array[j])
+			{
+				box = array[i];
+				array[i] = array[j];
+				array[j] = box;
+			}
+			j++;
+		}
+		i++;
+	}
+}
+
+void asind_index(int *array, t_list *head, int size)
+{
+	int i ;
+	while (head != NULL)
+	{
+		i = 0;
+		while (i < size)
+		{
+			if (head->arg == array[i])
+				head->index = i;
+			i++;
+		}
+		head = head->next;
+	}
+}
+
+/*#include <stdio.h>
+
+int main(int argc, char *argv[])
+{
+	int array[10];
+	t_option op;
+	t_list *head;
+
+	head = malloc(sizeof(t_list));
+	head->next = NULL;
+	int i;
+	i = 0;
+	cheek_is_arg_valid(argv, argc, pre_option(&op), head);
+	creat_rank(head, 5);
+	while (head != NULL)
+	{
+		printf("%d = %d\n", head->arg, head->index);
+		head = head->next;
+	}
+	return (0);
+}*/
