@@ -42,6 +42,7 @@ t_bool	has_dup(t_list *head)
 	}
 	return (0);
 }
+
 void creat_rank(t_list *head)
 {
     int *array;
@@ -96,21 +97,29 @@ static void scatter_chunks(t_list **head, t_list **stack_b, long size, t_stats *
     }
 }
 
-void ft_medimum(t_list **head, t_list **stack_b, long size, t_stats *c)
+void	ft_medimum(t_list **head, t_list **stack_b, long size, t_stats *c)
 {
-    creat_rank(*head);
-    scatter_chunks(head, stack_b, size, c);
-    size--;
-    while (size >= 0)
-    {
-        if ((*stack_b)->index == size)
-        {
-            ft_printf("pa\n");
-            count_move(c, "pa");
-            move_a("pa", head, stack_b, c);
-            size--;
-        }
-        else
-            rotate_times("rb", 1, stack_b, c);
-    }
+	long	(pos), (len);
+	creat_rank(*head);
+	scatter_chunks(head, stack_b, size, c);
+	size--;
+	while (size >= 0)
+	{
+		len = ft_lstsize(*stack_b);
+		pos = find_postino(*stack_b, size);
+		if (pos == 0)
+		{
+			ft_printf("pa\n");
+			count_move(c, "pa");
+			move_a("pa", head, stack_b, c);
+			size--;
+		}
+		else if (len - pos <= pos)
+		{
+			c->size = len;
+			rotate_times("rrb", len - pos, stack_b, c);
+		}
+		else
+			rotate_times("rb", pos, stack_b, c);
+	}
 }

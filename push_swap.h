@@ -73,5 +73,6 @@ int ft_sqrt(int nb);
 void ft_medimum(t_list **head, t_list **stack_b, long size, t_stats *c);
 t_bool	chek_range(char *s);
 t_bool	has_dup(t_list *head);
+unsigned long find_postino(t_list *b, long index1);
 
 #endif

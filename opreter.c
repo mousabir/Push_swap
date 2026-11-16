@@ -92,25 +92,3 @@ void asind_index(int *array, t_list *head, int size)
 		head = head->next;
 	}
 }
-
-/*#include <stdio.h>
-
-int main(int argc, char *argv[])
-{
-	int array[10];
-	t_option op;
-	t_list *head;
-
-	head = malloc(sizeof(t_list));
-	head->next = NULL;
-	int i;
-	i = 0;
-	cheek_is_arg_valid(argv, argc, pre_option(&op), head);
-	creat_rank(head, 5);
-	while (head != NULL)
-	{
-		printf("%d = %d\n", head->arg, head->index);
-		head = head->next;
-	}
-	return (0);
-}*/

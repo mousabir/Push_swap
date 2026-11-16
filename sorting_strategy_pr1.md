@@ -160,12 +160,3 @@ Important note: the pa phase as written now does not sort the result yet. It pop
 ## Why the infinite loop with 8 to 10 numbers happened
 
 The input had duplicate numbers. asind_index gave the same index to equal numbers, so some indexes did not exist, a chunk never became full, and ra repeated forever. The subject says duplicates must give Error, so the duplicate check fixes it.
-
-## Still to do
-
-1. Use adaptive as the default strategy when no flag is given.
-2. Write the complex strategy O(n log n) and the adaptive strategy.
-3. Compute the disorder before any move.
-4. Write the bench output on stderr.
-5. Improve the pa phase (bring the biggest number of B to the top first) and test 100 and 500 numbers with wc -l.
-6. Add -g to the Makefile flags while testing, and check for leaks.
