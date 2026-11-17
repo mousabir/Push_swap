@@ -44,7 +44,7 @@ void	run_algorithm(t_list **list, t_list **stack_b, t_option *op, t_stats *c)
 	else if (op->complex == 1)
 		ft_complex(list, stack_b, c);
 	else
-		ft_adaptive(list, stack_b, c);
+		ft_adaptive(list, stack_b, c, op);
 }
 
 int	main_porpes(int argc, char *argv[], t_list *list, t_option *op)

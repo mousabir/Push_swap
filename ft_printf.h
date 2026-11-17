@@ -16,6 +16,7 @@
 # include <stdarg.h>
 # include <unistd.h>
 
+int	ft_dprintf(const char *formte, ...);
 int	ft_printf(const char *formte, ...);
 int	ft_putchar(char c);
 int	ft_putstr(char *s);

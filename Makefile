@@ -14,6 +14,7 @@ SRCS        = start_point.c \
               files_for_medium.c \
               Complex.c \
               brench.c \
+              ft_dprintf.c \
 			  
 
 OBJS        = $(SRCS:.c=.o)
