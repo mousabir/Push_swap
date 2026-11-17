@@ -23,6 +23,7 @@ typedef struct s_stats
 	long	rra;
 	long	rrb;
 	long	rrr;
+	float 	disorder;
 }	t_stats;
 
 typedef struct s_list
@@ -78,5 +79,7 @@ void	ft_complex(t_list **a, t_list **b, t_stats *c);
 int bit_conter(long rank);
 void	push_back_all(t_list **a, t_list **b, t_stats *c);
 void	radix_pass(t_list **a, t_list **b, t_stats *c, int bit);
-
+float ft_disorder(t_list *a);
+void	ft_adaptive(t_list **a, t_list **b, t_stats *c, t_option *op);
+void	ft_bench(t_stats *c, t_option *op);
 #endif
