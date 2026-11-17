@@ -23,5 +23,5 @@ int	ft_putnbr(int n);
 int	ft_put_unsigned(unsigned int n);
 int	ft_put_hex(unsigned long n, char *base);
 int	ft_put_adrss(void *add);
-
+ 
 #endif

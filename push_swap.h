@@ -74,5 +74,9 @@ void ft_medimum(t_list **head, t_list **stack_b, long size, t_stats *c);
 t_bool	chek_range(char *s);
 t_bool	has_dup(t_list *head);
 unsigned long find_postino(t_list *b, long index1);
+void	ft_complex(t_list **a, t_list **b, t_stats *c);
+int bit_conter(long rank);
+void	push_back_all(t_list **a, t_list **b, t_stats *c);
+void	radix_pass(t_list **a, t_list **b, t_stats *c, int bit);
 
 #endif

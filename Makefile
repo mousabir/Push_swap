@@ -12,6 +12,7 @@ SRCS        = start_point.c \
               pri_ar.c \
               push_swap_utiles.c \
               files_for_medium.c \
+              Complex.c \
 			  
 
 OBJS        = $(SRCS:.c=.o)

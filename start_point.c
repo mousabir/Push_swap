@@ -33,15 +33,18 @@ int	is_sorted(t_list *head)
 	return (1);
 }
 
-void	run_algorithm(t_list **list, t_list **stack_b,
-		t_option *op, t_stats *c)
+void	run_algorithm(t_list **list, t_list **stack_b, t_option *op, t_stats *c)
 {
+	if ((*list)->next == NULL)
+		return ;
 	if (is_sorted(*list))
 		return ;
 	if (op->simple == 1)
 		ft_smeple(list, stack_b, c);
 	else if (op->medium == 1)
 		ft_medimum(list, stack_b, ft_lstsize(*list), c);
+	else if (op->complex == 1)
+		ft_complex(list, stack_b, c);
 }
 
 int	main_porpes(int argc, char *argv[], t_list *list, t_option *op)

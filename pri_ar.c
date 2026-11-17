@@ -84,7 +84,7 @@ t_bool	cheek_is_arg_valid(char **argv, int argc, t_option *list, t_list *node)
 			return (0);
 		index++;
 	}
-	if (find == 0 || has_dup(head))
+	if (has_dup(head))
 		return (0);
 	return (1);
 }
