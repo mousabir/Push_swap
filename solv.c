@@ -38,6 +38,11 @@ void	move_a(char *an, t_list **a, t_list **b, t_stats *c)
 		move_a("ra", a, b, c);
 	else if (ft_strcmp(an, "rrb") == 0)
 		move_a("rra", a, b, c);
+	else if (ft_strcmp(an, "rr") == 0)
+	{
+		move_a("ra", a, b, c);
+		move_a("rb", a, b, c);
+	}
 }
 
 void	rotate_times(char *an, long times, t_list **a, t_stats *c)

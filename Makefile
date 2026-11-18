@@ -9,12 +9,12 @@ SRCS        = start_point.c \
               medimum.c \
               helpers.c \
               opreter.c \
-              pri_ar.c \
               push_swap_utiles.c \
               files_for_medium.c \
               Complex.c \
               brench.c \
               ft_dprintf.c \
+              chek_arg.c \
 			  
 
 OBJS        = $(SRCS:.c=.o)
