@@ -16,6 +16,13 @@ SRCS        = start_point.c \
               ft_dprintf.c \
               chek_arg.c \
 			  
+BONUS_SRCS = checker.c \
+             checker_helper.c \
+             helpers.c \
+             get_next_line.c \
+             get_next_line_utils.c
+
+BONUS_OBJS = $(BONUS_SRCS:.c=.o)
 
 OBJS        = $(SRCS:.c=.o)
 
@@ -28,11 +35,16 @@ $(NAME):    $(OBJS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) $(OBJS)
+	$(RM) $(OBJS) $(BONUS_OBJS)
 
 fclean:     clean
-	$(RM) $(NAME)
+	$(RM) $(NAME) checker
 
 re:         fclean all
 
-.PHONY:     all clean fclean re
+bonus: checker
+
+checker: $(BONUS_OBJS)
+	$(CC) $(CFLAGS) $(BONUS_OBJS) -o checker
+
+.PHONY: all clean fclean re bonus
