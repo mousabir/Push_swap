@@ -1,50 +1,56 @@
-NAME        = push_swap
+NAME		= push_swap
+BONUS_NAME	= checker
 
-CC          = cc
-CFLAGS      = -Wall -Wextra -Werror
-RM          = rm -f
+CC		= cc
+CFLAGS		= -Wall -Wextra -Werror
+RM		= rm -f
 
-SRCS        = start_point.c \
-              solv.c \
-              medimum.c \
-              helpers.c \
-              opreter.c \
-              push_swap_utiles.c \
-              files_for_medium.c \
-              Complex.c \
-              brench.c \
-              ft_dprintf.c \
-              chek_arg.c \
-			  
-BONUS_SRCS = checker.c \
-             checker_helper.c \
-             helpers.c \
-             get_next_line.c \
-             get_next_line_utils.c
+LIB		= libftprintf.a
+HEADERS		= push_swap.h ft_printf.h checker.h get_next_line.h
 
-BONUS_OBJS = $(BONUS_SRCS:.c=.o)
+SRCS		= main.c \
+		  parse_args.c \
+		  parse_args_utiles.c \
+		  push_swap_utiles.c \
+		  helpers.c \
+		  operations.c \
+		  adaptive.c \
+		  sort_semple.c \
+		  sort_medium.c \
+		  sort_medium_utils.c \
+		  sort_complex.c \
+		  bench.c \
+		  ft_dprintf.c
 
-OBJS        = $(SRCS:.c=.o)
+BONUS_SRCS	= checker_bonus.c \
+		  checker_helper_bonus.c \
+		  checker_operations_bonus.c \
+		  get_next_line.c \
+		  get_next_line_utils.c \
+		  cheker_bonus_utiles.c
 
-all:        $(NAME)
+OBJS		= $(SRCS:.c=.o)
+BONUS_OBJS	= $(BONUS_SRCS:.c=.o)
 
-$(NAME):    $(OBJS) 
-	$(CC) $(CFLAGS) $(OBJS) libftprintf.a -o $(NAME)
+all: $(NAME)
 
-%.o:        %.c
+$(NAME): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) $(LIB) -o $(NAME)
+
+$(BONUS_NAME): $(BONUS_OBJS)
+	$(CC) $(CFLAGS) $(BONUS_OBJS) -o $(BONUS_NAME)
+
+bonus: $(NAME) $(BONUS_NAME)
+
+%.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
 	$(RM) $(OBJS) $(BONUS_OBJS)
 
-fclean:     clean
-	$(RM) $(NAME) checker
+fclean: clean
+	$(RM) $(NAME) $(BONUS_NAME)
 
-re:         fclean all
+re: fclean all
 
-bonus: checker
-
-checker: $(BONUS_OBJS)
-	$(CC) $(CFLAGS) $(BONUS_OBJS) -o checker
-
-.PHONY: all clean fclean re bonus
+.PHONY: all bonus clean fclean re

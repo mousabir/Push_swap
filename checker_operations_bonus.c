@@ -12,17 +12,6 @@
 
 #include "checker.h"
 
-static void	swap_stack(t_list *stack)
-{
-	int	tmp;
-
-	if (!stack || !stack->next)
-		return ;
-	tmp = stack->arg;
-	stack->arg = stack->next->arg;
-	stack->next->arg = tmp;
-}
-
 static void	push_stack(t_list **from, t_list **to)
 {
 	t_list	*node;
@@ -68,26 +57,6 @@ static void	reverse_stack(t_list **stack)
 	prev->next = NULL;
 	last->next = *stack;
 	*stack = last;
-}
-
-static int	execute_push_swap(char *line, t_list **a, t_list **b)
-{
-	if (!ft_strcmp(line, "sa"))
-		swap_stack(*a);
-	else if (!ft_strcmp(line, "sb"))
-		swap_stack(*b);
-	else if (!ft_strcmp(line, "ss"))
-	{
-		swap_stack(*a);
-		swap_stack(*b);
-	}
-	else if (!ft_strcmp(line, "pa"))
-		push_stack(b, a);
-	else if (!ft_strcmp(line, "pb"))
-		push_stack(a, b);
-	else
-		return (0);
-	return (1);
 }
 
 static int	execute_rotate(char *line, t_list **a, t_list **b)

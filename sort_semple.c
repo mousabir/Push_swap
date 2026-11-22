@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sort_semple.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mousabir <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/22 17:24:45 by mousabir          #+#    #+#             */
+/*   Updated: 2026/11/22 17:24:48 by mousabir         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "push_swap.h"
 
 long	smallest_position(t_list *head)
@@ -22,41 +34,6 @@ long	smallest_position(t_list *head)
 		i++;
 	}
 	return (pos);
-}
-
-void	move_a(char *an, t_list **a, t_list **b, t_stats *c)
-{
-	if (ft_strcmp(an, "pb") == 0)
-		push_node(a, b);
-	else if (ft_strcmp(an, "ra") == 0)
-		rotate_node(a);
-	else if (ft_strcmp(an, "rra") == 0)
-		reverse_node(a, c->size);
-	else if (ft_strcmp(an, "pa") == 0)
-		move_a("pb", b, a, c);
-	else if (ft_strcmp(an, "rb") == 0)
-		move_a("ra", a, b, c);
-	else if (ft_strcmp(an, "rrb") == 0)
-		move_a("rra", a, b, c);
-	else if (ft_strcmp(an, "rr") == 0)
-	{
-		move_a("ra", a, b, c);
-		move_a("rb", a, b, c);
-	}
-}
-
-void	rotate_times(char *an, long times, t_list **a, t_stats *c)
-{
-	long	i;
-
-	i = 0;
-	while (i < times)
-	{
-		ft_printf("%s\n", an);
-		count_move(c, an);
-		move_a(an, a, NULL, c);
-		i++;
-	}
 }
 
 void	bring_to_top(long pos, t_list **a, t_list **b, t_stats *c)

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   parse_args.c                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mousabir <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/11/22 17:22:35 by mousabir          #+#    #+#             */
+/*   Updated: 2026/11/22 17:22:38 by mousabir         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "push_swap.h"
 
 t_bool	cheek_option(t_option *list, char *argmnet)
@@ -21,19 +33,19 @@ t_bool	cheek_option(t_option *list, char *argmnet)
 	return (1);
 }
 
-t_list    *creat_stack(char *argv, t_list *node, int find)
+t_list	*creat_stack(char *argv, t_list *node, int find)
 {
-    if (find == 0)
-    {
-        node->arg = ft_atoi(argv);
-        return (node);
-    }
-    else
-    {
-        node->next = ft_lstnew(ft_atoi(argv));
-        node = node->next;
-        return (node);
-    }
+	if (find == 0)
+	{
+		node->arg = ft_atoi(argv);
+		return (node);
+	}
+	else
+	{
+		node->next = ft_lstnew(ft_atoi(argv));
+		node = node->next;
+		return (node);
+	}
 }
 
 t_bool	chek_is_dgit(char *d)
@@ -65,9 +77,9 @@ static int	add_arg(char *arg, t_option *list, t_list **node, int *find)
 		return (0);
 	*find = 1;
 	return (1);
-} 
+}
 
-t_bool	cheek_is_arg_valid(char **argv, int argc, t_option *list, t_list *node)
+t_bool	check_args(char **argv, int argc, t_option *list, t_list *node)
 {
 	int		index;
 	int		find;
