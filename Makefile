@@ -28,7 +28,13 @@ BONUS_SRCS	= checker_bonus.c \
 		  checker_operations_bonus.c \
 		  get_next_line.c \
 		  get_next_line_utils.c \
-		  cheker_bonus_utiles.c
+		  cheker_bonus_utiles.c \
+		  helpers.c \
+		  ft_split.c \
+			parse_args.c \
+		  parse_args_utiles.c \
+
+
 
 OBJS		= $(SRCS:.c=.o)
 BONUS_OBJS	= $(BONUS_SRCS:.c=.o)

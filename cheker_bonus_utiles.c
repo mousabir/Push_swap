@@ -12,6 +12,29 @@
 
 #include "push_swap.h"
 
+void	swap_stack(t_list *stack)
+{
+	int	tmp;
+
+	if (!stack || !stack->next)
+		return ;
+	tmp = stack->arg;
+	stack->arg = stack->next->arg;
+	stack->next->arg = tmp;
+}
+
+static void	push_stack(t_list **from, t_list **to)
+{
+	t_list	*node;
+
+	if (!*from)
+		return ;
+	node = *from;
+	*from = node->next;
+	node->next = *to;
+	*to = node;
+}
+
 int	execute_push_swap(char *line, t_list **a, t_list **b)
 {
 	if (!ft_strcmp(line, "sa"))
@@ -32,13 +55,3 @@ int	execute_push_swap(char *line, t_list **a, t_list **b)
 	return (1);
 }
 
-void	swap_stack(t_list *stack)
-{
-	int	tmp;
-
-	if (!stack || !stack->next)
-		return ;
-	tmp = stack->arg;
-	stack->arg = stack->next->arg;
-	stack->next->arg = tmp;
-}

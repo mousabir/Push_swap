@@ -12,17 +12,6 @@
 
 #include "checker.h"
 
-static void	push_stack(t_list **from, t_list **to)
-{
-	t_list	*node;
-
-	if (!*from)
-		return ;
-	node = *from;
-	*from = node->next;
-	node->next = *to;
-	*to = node;
-}
 
 static void	rotate_stack(t_list **stack)
 {

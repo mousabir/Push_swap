@@ -30,7 +30,6 @@ static int	get_sign(char *s, int *i)//
 static int	to_int(char *s, int *value)
 {
 	long long	n;
-	long long	limit;
 	int			sign;
 	int			i;
 

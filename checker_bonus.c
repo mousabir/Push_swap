@@ -12,6 +12,7 @@
 
 #include "checker.h"
 
+
 void	checker_free(t_list *stack)
 {
 	t_list	*next;
@@ -67,13 +68,16 @@ int	main(int argc, char **argv)
 {
 	t_list	*a;
 	t_list	*b;
+	t_option o;
 	int		error;
 
 	if (argc == 1)
 		return (0);
-	a = NULL;
+	a = malloc(sizeof(t_list));
+	if (a == NULL)
+		return (1);
 	b = NULL;
-	error = !checker_parse_args(argc, argv, &a);
+	error = !check_args(argv, argc, &o, a);
 	if (!error)
 		error = read_instructions(&a, &b);
 	print_result(error, a, b);
