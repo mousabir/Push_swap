@@ -37,23 +37,31 @@ t_bool	chek_range(char *s)
 	return (1);
 }
 
-void	init_stats(t_stats *c)
+static void	free_split(char **words)
 {
-	c->size = 0;
-	c->total = 0;
-	c->sa = 0;
-	c->sb = 0;
-	c->ss = 0;
-	c->pa = 0;
-	c->pb = 0;
-	c->ra = 0;
-	c->rb = 0;
-	c->rr = 0;
-	c->rra = 0;
-	c->rrb = 0;
-	c->rrr = 0;
+	int	i;
+
+	i = 0;
+	while (words[i])
+	{
+		free(words[i]);
+		i++;
+	}
+	free(words);
 }
 
+static int	add_arg(char *arg, t_option *list, t_list **node, int *find)
+{
+	if (cheek_option(list, arg))
+		return (1);
+	if (!chek_is_dgit(arg) || !chek_range(arg))
+		return (0);
+	*node = creat_stack(arg, *node, *find);
+	if (*node == NULL)
+		return (0);
+	*find = 1;
+	return (1);
+}
 t_bool	has_dup(t_list *head)
 {
 	t_list	*cur;
@@ -72,12 +80,29 @@ t_bool	has_dup(t_list *head)
 	return (0);
 }
 
-t_option	*pre_option(t_option *o)
+t_bool	parse_one_arg(char *arg, t_option *list, t_list **node, int *find)
 {
-	o->simple = 0;
-	o->medium = 0;
-	o->complex = 0;
-	o->adaptive = 0;
-	o->bench = 0;
-	return (o);
+	char	**words;
+	int		i;
+
+	words = ft_split(arg, ' ');
+	if (!words)
+		return (0);
+	if (!words[0])
+	{
+		free_split(words);
+		return (0);
+	}
+	i = 0;
+	while (words[i])
+	{
+		if (!add_arg(words[i], list, node, find))
+		{
+			free_split(words);
+			return (0);
+		}
+		i++;
+	}
+	free_split(words);
+	return (1);
 }

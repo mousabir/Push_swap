@@ -36,6 +36,16 @@ long	smallest_position(t_list *head)
 	return (pos);
 }
 
+t_option	*pre_option(t_option *o)
+{
+	o->simple = 0;
+	o->medium = 0;
+	o->complex = 0;
+	o->adaptive = 0;
+	o->bench = 0;
+	return (o);
+} 
+
 void	bring_to_top(long pos, t_list **a, t_list **b, t_stats *c)
 {
 	if (pos == 0)

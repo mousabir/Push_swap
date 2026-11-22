@@ -20,7 +20,8 @@ SRCS		= main.c \
 		  sort_medium_utils.c \
 		  sort_complex.c \
 		  bench.c \
-		  ft_dprintf.c
+		  ft_dprintf.c \
+		  ft_split.c \
 
 BONUS_SRCS	= checker_bonus.c \
 		  checker_helper_bonus.c \

@@ -73,4 +73,21 @@ void	rotate_times(char *an, long times, t_list **a, t_stats *c)
 		i++;
 	}
 }
-// chek push_utiles.c !! 
+
+void	init_stats(t_stats *c)
+{
+	c->size = 0;
+	c->total = 0;
+	c->sa = 0;
+	c->sb = 0;
+	c->ss = 0;
+	c->pa = 0;
+	c->pb = 0;
+	c->ra = 0;
+	c->rb = 0;
+	c->rr = 0;
+	c->rra = 0;
+	c->rrb = 0;
+	c->rrr = 0;
+}
+

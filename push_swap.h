@@ -94,5 +94,6 @@ void		radix_pass(t_list **a, t_list **b, t_stats *c, int bit);
 float		ft_disorder(t_list *a);
 void		ft_adaptive(t_list **a, t_list **b, t_stats *c, t_option *op);
 void		ft_bench(t_stats *c, t_option *op);
-
+t_bool	parse_one_arg(char *arg, t_option *list, t_list **node, int *find);
+char	**ft_split(char *str, char c);
 #endif

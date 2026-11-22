@@ -66,18 +66,6 @@ t_bool	chek_is_dgit(char *d)
 	return (1);
 }
 
-static int	add_arg(char *arg, t_option *list, t_list **node, int *find)
-{
-	if (cheek_option(list, arg))
-		return (1);
-	if (!chek_is_dgit(arg) || !chek_range(arg))
-		return (0);
-	*node = creat_stack(arg, *node, *find);
-	if (*node == NULL)
-		return (0);
-	*find = 1;
-	return (1);
-}
 
 t_bool	check_args(char **argv, int argc, t_option *list, t_list *node)
 {
@@ -92,11 +80,11 @@ t_bool	check_args(char **argv, int argc, t_option *list, t_list *node)
 		return (0);
 	while (index < argc)
 	{
-		if (!add_arg(argv[index], list, &node, &find))
+		if (!parse_one_arg(argv[index], list, &node, &find))
 			return (0);
 		index++;
 	}
-	if (has_dup(head))
+	if (find == 0 || has_dup(head))
 		return (0);
 	return (1);
 }
