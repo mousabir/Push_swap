@@ -1,0 +1,542 @@
+#!/usr/bin/env python3
+"""
+push_swap tester (subject v1.2: strategies, --bench, disorder, checker bonus)
+
+Usage:
+    python3 push_swap_tester.py [-p ./push_swap] [-c ./checker] [-r RUNS]
+                                [--valgrind] [--make] [--bonus]
+"""
+import argparse
+import itertools
+import os
+import random
+import re
+import shutil
+import statistics
+import subprocess
+import sys
+
+INT_MIN = -2147483648
+INT_MAX = 2147483647
+OPS = ["sa", "sb", "ss", "pa", "pb", "ra", "rb", "rr", "rra", "rrb", "rrr"]
+VALID_OPS = set(OPS)
+STRATS = ["--simple", "--medium", "--complex", "--adaptive"]
+TIMEOUT = 30
+
+# size -> (excellent, good, pass): the number of moves must be STRICTLY lower
+BENCH = {100: (700, 1500, 2000), 500: (5500, 8000, 12000)}
+
+G, R, Y, X = "\033[92m", "\033[91m", "\033[93m", "\033[0m"
+
+passed = 0
+failed = 0
+warned = 0
+
+
+# ------------------------------------------------------------ reporting
+def report(name, ok, info=""):
+    global passed, failed
+    if ok:
+        passed += 1
+        print(f"{G}[PASS]{X} {name} {info}")
+    else:
+        failed += 1
+        print(f"{R}[FAIL]{X} {name} {info}")
+
+
+def warn(name, info=""):
+    global warned
+    warned += 1
+    print(f"{Y}[WARN]{X} {name} {info}")
+
+
+def label(flag):
+    return flag if flag else "default"
+
+
+# -------------------------------------------------------------- helpers
+def run(prog, args, stdin=None):
+    """Return (stdout, stderr, returncode) or None on timeout."""
+    try:
+        p = subprocess.run([prog] + args, capture_output=True, text=True,
+                           input=stdin, timeout=TIMEOUT)
+        return p.stdout, p.stderr, p.returncode
+    except subprocess.TimeoutExpired:
+        return None
+
+
+def disorder(nums):
+    """Disorder as defined in the subject (0..1)."""
+    mistakes = 0
+    total = 0
+    n = len(nums)
+    for i in range(n):
+        for j in range(i + 1, n):
+            total += 1
+            if nums[i] > nums[j]:
+                mistakes += 1
+    return mistakes / total if total else 0.0
+
+
+def simulate(numbers, moves):
+    """Replay moves (top of stack = index 0). Return (ok, message)."""
+    a = list(numbers)
+    b = []
+    for m in moves:
+        if m not in VALID_OPS:
+            return False, f"invalid instruction '{m}'"
+        if m in ("sa", "ss") and len(a) > 1:
+            a[0], a[1] = a[1], a[0]
+        if m in ("sb", "ss") and len(b) > 1:
+            b[0], b[1] = b[1], b[0]
+        if m == "pa" and b:
+            a.insert(0, b.pop(0))
+        if m == "pb" and a:
+            b.insert(0, a.pop(0))
+        if m in ("ra", "rr") and len(a) > 1:
+            a.append(a.pop(0))
+        if m in ("rb", "rr") and len(b) > 1:
+            b.append(b.pop(0))
+        if m in ("rra", "rrr") and len(a) > 1:
+            a.insert(0, a.pop())
+        if m in ("rrb", "rrr") and len(b) > 1:
+            b.insert(0, b.pop())
+    if b:
+        return False, "stack b is not empty at the end"
+    if a != sorted(numbers):
+        return False, "stack a is not sorted at the end"
+    return True, "ok"
+
+
+def solve(prog, numbers, flags=(), one_string=False):
+    """Run push_swap and verify the result by replaying the moves."""
+    args = list(flags)
+    if one_string:
+        args.append(" ".join(map(str, numbers)))
+    else:
+        args += [str(n) for n in numbers]
+    res = run(prog, args)
+    if res is None:
+        return dict(ok=False, n=0, msg="timeout", err="", moves=[], out="")
+    out, err, _ = res
+    moves = out.split("\n")
+    if moves and moves[-1] == "":
+        moves.pop()
+    ok, msg = simulate(numbers, moves)
+    if ok and out and not out.endswith("\n"):
+        ok, msg = False, "output does not end with a newline"
+    if ok and "--bench" not in flags and err:
+        ok, msg = False, f"unexpected stderr without --bench: {err.strip()[:80]!r}"
+    return dict(ok=ok, n=len(moves), msg=msg, err=err, moves=moves, out=out)
+
+
+def grade(size, worst):
+    ex, good, ps = BENCH[size]
+    if worst < ex:
+        return "excellent", True
+    if worst < good:
+        return "good", True
+    if worst < ps:
+        return "pass only", True
+    return f"OVER the pass limit ({ps})", False
+
+
+def gen_random(size):
+    pool = random.sample(range(-100000, 100000), size)
+    if size >= 5 and random.random() < 0.3:
+        pool[0], pool[1] = INT_MIN, INT_MAX
+    return pool
+
+
+def gen_with_disorder(n, lo, hi):
+    base = random.sample(range(-5000, 5000), n)
+    if lo >= 0.5:
+        data = sorted(base, reverse=True)
+        for _ in range(random.randint(0, 5)):
+            i, j = random.sample(range(n), 2)
+            data[i], data[j] = data[j], data[i]
+        return data
+    data = sorted(base)
+    for _ in range(100000):
+        d = disorder(data)
+        if lo <= d < hi:
+            return data
+        i, j = random.sample(range(n), 2)
+        data[i], data[j] = data[j], data[i]
+    return data
+
+
+# --------------------------------------------------------- bench parsing
+def op_count_in(err, op):
+    p1 = rf"(?<![a-z]){op}(?![a-z])\s*[:=\-]*\s*(\d+)"
+    p2 = rf"(\d+)\s*[x×*]?\s*(?<![a-z]){op}(?![a-z])"
+    m = re.search(p1, err) or re.search(p2, err)
+    return int(m.group(1)) if m else None
+
+
+def check_bench(err, numbers, moves, flag):
+    """Return (problems, warnings) for the --bench text on stderr."""
+    low = err.lower()
+    problems = []
+    warnings = []
+
+    m = re.search(r"(\d+\.\d{2})\s*%", err)
+    if not m:
+        problems.append("disorder not shown as a percentage with two decimals")
+    else:
+        shown = float(m.group(1))
+        expected = disorder(numbers) * 100
+        if abs(shown - expected) > 0.011:
+            problems.append(f"disorder shown {shown}% but expected {expected:.2f}%")
+
+    if "o(" not in low:
+        problems.append("no complexity class (like O(n^2)) found")
+    else:
+        pats = {
+            "--simple": r"n\s*\^\s*2|n²|n\*\*2|n\s*\*\s*n|n2",
+            "--medium": r"√|sqrt|n\s*\^\s*(1\.5|\(3/2\))|n\s*\*\s*n\s*\^\s*0?\.5|n\^1\.5",
+            "--complex": r"log",
+        }
+        if flag in pats and not re.search(pats[flag], low):
+            warnings.append(f"complexity text does not look like the one for {flag}")
+
+    if flag in ("--simple", "--medium", "--complex"):
+        word = flag[2:]
+        if word not in low:
+            warnings.append(f"strategy name does not contain '{word}' (fine if your names differ)")
+
+    tm = re.search(r"total[^\n\d]*(\d+)", low)
+    if tm:
+        if int(tm.group(1)) != len(moves):
+            problems.append(f"total shown {tm.group(1)} but {len(moves)} operations printed")
+    elif str(len(moves)) not in re.findall(r"\d+", low):
+        problems.append("total number of operations not found")
+
+    for op in OPS:
+        shown = op_count_in(low, op)
+        real = moves.count(op)
+        if shown is None:
+            problems.append(f"count for {op} not found")
+        elif shown != real:
+            problems.append(f"{op}: shown {shown} but real {real}")
+    return problems, warnings
+
+
+# ----------------------------------------------------------------- tests
+def test_makefile():
+    print(f"\n{Y}== Makefile and norm =={X}")
+    if not os.path.exists("Makefile"):
+        report("Makefile exists", False)
+        return
+    r1 = subprocess.run(["make"], capture_output=True, text=True)
+    report("make builds", r1.returncode == 0)
+    r2 = subprocess.run(["make"], capture_output=True, text=True)
+    relinked = re.search(r"\b(cc|gcc|clang)\b", r2.stdout)
+    report("no relink on second make", r2.returncode == 0 and not relinked)
+    for rule in ("all", "clean", "fclean", "re"):
+        p = subprocess.run(["make", "-n", rule], capture_output=True, text=True)
+        report(f"rule {rule}", p.returncode == 0)
+    p = subprocess.run(["make", "-n", "re"], capture_output=True, text=True)
+    flags_ok = all(f in p.stdout for f in ("-Wall", "-Wextra", "-Werror"))
+    report("flags -Wall -Wextra -Werror", flags_ok)
+    if shutil.which("norminette"):
+        p = subprocess.run(["norminette"], capture_output=True, text=True)
+        report("norminette", p.returncode == 0,
+               "" if p.returncode == 0 else p.stdout.strip().splitlines()[-1])
+    else:
+        print("norminette not found, skipped")
+
+
+def test_errors(prog):
+    print(f"\n{Y}== Error cases =={X}")
+    bad = [
+        ["1", "a", "3"], ["12abc"], ["1", "2", "2"], ["1", "1"],
+        ["2147483648"], ["-2147483649"], ["99999999999999999999"],
+        ["+"], ["-"], [""], ["1", "", "3"], ["1 2 2"], ["1", "--2"],
+        ["1", "2", "3a"], ["0", "-0"],
+        ["--adaptive", "0", "one", "2", "3"],
+        ["--simple", "3", "2", "3"],
+        ["--medium", "1", "1"],
+        ["--complex", "2147483648"],
+        ["--bench", "1", "a"],
+        ["--bench", "--simple", "5", "5"],
+    ]
+    for args in bad:
+        res = run(prog, args)
+        if res is None:
+            report(f"error {args}", False, "timeout")
+            continue
+        out, err, _ = res
+        ok = err == "Error\n" and out == ""
+        report(f"error {args}", ok,
+               "" if ok else f"stdout={out!r} stderr={err!r}")
+
+
+def test_quiet(prog):
+    print(f"\n{Y}== Quiet cases (nothing expected) =={X}")
+    cases = [[], ["42"], ["1", "2", "3"], ["-5", "0", "7", "100"], ["1 2 3"],
+             [str(INT_MIN), str(INT_MAX)],
+             ["--simple", "1", "2", "3"], ["--adaptive", "7"]]
+    for args in cases:
+        res = run(prog, args)
+        if res is None:
+            report(f"quiet {args}", False, "timeout")
+            continue
+        out, err, _ = res
+        ok = out == "" and err == ""
+        report(f"quiet {args}", ok, "" if ok else f"stdout={out!r} stderr={err!r}")
+
+
+def test_formats(prog):
+    print(f"\n{Y}== Input formats =={X}")
+    nums = [3, -1, 2, 0, 5]
+    for one in (False, True):
+        r = solve(prog, nums, one_string=one)
+        report("one quoted string" if one else "many arguments", r["ok"],
+               f"{r['n']} moves" if r["ok"] else r["msg"])
+    r = solve(prog, [INT_MIN, INT_MAX, 0, -1, 1])
+    report("INT_MIN / INT_MAX", r["ok"], f"{r['n']} moves" if r["ok"] else r["msg"])
+    res = run(prog, ["+3", "-2", "01", "0"])
+    if res is None:
+        report("signs and leading zeros", False, "timeout")
+    else:
+        out, err, _ = res
+        ok, msg = simulate([3, -2, 1, 0], [m for m in out.split("\n") if m])
+        report("signs and leading zeros (+3 -2 01 0)", ok and err == "",
+               "" if ok and err == "" else msg)
+
+
+def test_flags_basic(prog):
+    print(f"\n{Y}== Strategy flags =={X}")
+    nums = random.sample(range(-100, 100), 12)
+    for flag in STRATS:
+        r = solve(prog, nums, (flag,))
+        report(f"{flag} sorts 12 numbers", r["ok"],
+               f"{r['n']} moves" if r["ok"] else r["msg"])
+    d = solve(prog, nums)
+    a = solve(prog, nums, ("--adaptive",))
+    report("default behaves like --adaptive", d["ok"] and d["out"] == a["out"])
+    for flag in STRATS:
+        for size in (1, 2, 3):
+            data = random.sample(range(-50, 50), size)
+            r = solve(prog, data, (flag,))
+            report(f"{flag} on {size} number(s)", r["ok"], "" if r["ok"] else r["msg"])
+
+
+def test_permutations(prog):
+    print(f"\n{Y}== All permutations (sizes 2 to 5) for every strategy =={X}")
+    for flag in [None] + STRATS:
+        flags = (flag,) if flag else ()
+        for size in range(2, 6):
+            worst = 0
+            bad = None
+            for perm in itertools.permutations(range(size)):
+                r = solve(prog, list(perm), flags)
+                worst = max(worst, r["n"])
+                if not r["ok"]:
+                    bad = (perm, r["msg"])
+                    break
+            name = f"{label(flag)} size {size}"
+            if bad:
+                report(name, False, f"input={list(bad[0])} -> {bad[1]}")
+            else:
+                report(name, True, f"worst = {worst} moves")
+
+
+def test_bench_mode(prog):
+    print(f"\n{Y}== --bench mode =={X}")
+    nums = random.sample(range(-1000, 1000), 30)
+    for flag in STRATS:
+        for order in ((flag, "--bench"), ("--bench", flag)):
+            r = solve(prog, nums, order)
+            name = f"{' '.join(order)}"
+            if not r["ok"]:
+                report(name, False, r["msg"])
+                continue
+            problems, warnings = check_bench(r["err"], nums, r["moves"], flag)
+            report(name, not problems, "; ".join(problems))
+            for w in warnings:
+                warn(name, w)
+    r = solve(prog, nums, ("--bench",))
+    if r["ok"]:
+        problems, warnings = check_bench(r["err"], nums, r["moves"], None)
+        report("--bench alone (default strategy)", not problems, "; ".join(problems))
+    else:
+        report("--bench alone (default strategy)", False, r["msg"])
+    r = solve(prog, nums, ("--bench",))
+    report("bench text goes to stderr only", r["ok"] and r["err"] != "" and
+           all(l in OPS for l in r["out"].split("\n") if l))
+
+
+def test_disorder_regimes(prog):
+    print(f"\n{Y}== Adaptive: disorder regimes (100 numbers) =={X}")
+    regimes = [("low", 0.01, 0.2), ("medium", 0.2, 0.5), ("high", 0.5, 1.01)]
+    for name, lo, hi in regimes:
+        data = gen_with_disorder(100, lo, hi)
+        d = disorder(data)
+        row = []
+        ok_all = True
+        for flag in STRATS:
+            r = solve(prog, data, (flag, "--bench"))
+            ok_all = ok_all and r["ok"]
+            row.append(f"{flag[2:]}={r['n']}")
+            if flag == "--adaptive" and r["ok"]:
+                problems, _ = check_bench(r["err"], data, r["moves"], flag)
+                if problems:
+                    report(f"{name} bench info", False, "; ".join(problems))
+        report(f"{name} disorder {d:.2f}", ok_all, " ".join(row))
+
+
+def test_special_orders(prog):
+    print(f"\n{Y}== Special orders (default strategy) =={X}")
+    for size in (100, 500):
+        base = random.sample(range(-100000, 100000), size)
+        asc = sorted(base)
+        desc = sorted(base, reverse=True)
+        almost = asc[:]
+        for _ in range(5):
+            i, j = random.randrange(size), random.randrange(size)
+            almost[i], almost[j] = almost[j], almost[i]
+        for name, data in (("sorted", asc), ("reversed", desc), ("almost sorted", almost)):
+            r = solve(prog, data)
+            if not r["ok"]:
+                report(f"{name} ({size})", False, r["msg"])
+                continue
+            g, good = grade(size, r["n"])
+            if name == "sorted":
+                report(f"{name} ({size})", r["n"] == 0, f"{r['n']} moves")
+            else:
+                report(f"{name} ({size})", good, f"{r['n']} moves, {g}")
+
+
+def test_random(prog, runs):
+    print(f"\n{Y}== Random tests =={X}")
+    configs = [(None, runs)] + [(f, max(3, runs // 5)) for f in STRATS]
+    for flag, r_count in configs:
+        flags = (flag,) if flag else ()
+        for size in (3, 5, 100, 500):
+            counts = []
+            fails = 0
+            first = None
+            for _ in range(r_count):
+                data = gen_random(size)
+                r = solve(prog, data, flags)
+                counts.append(r["n"])
+                if not r["ok"]:
+                    fails += 1
+                    first = first or (data, r["msg"])
+            name = f"{label(flag)} random {size} x{r_count}"
+            info = f"min={min(counts)} avg={statistics.mean(counts):.0f} max={max(counts)}"
+            if fails:
+                report(name, False, f"{fails} wrong results. {info}")
+                fname = f"failed_{label(flag).strip('-')}_{size}.txt"
+                with open(fname, "w") as f:
+                    f.write(" ".join(map(str, first[0])))
+                print(f"       reason: {first[1]} (input saved in {fname})")
+            elif flag in (None, "--adaptive") and size in BENCH:
+                g, good = grade(size, max(counts))
+                report(name, good, f"{g}. {info}")
+            else:
+                report(name, True, info)
+
+
+def test_valgrind(prog):
+    print(f"\n{Y}== Memory leaks (valgrind) =={X}")
+    if not shutil.which("valgrind"):
+        print("valgrind not found, skipped")
+        return
+    data = list(map(str, random.sample(range(-1000, 1000), 50)))
+    cases = [("valid input", data), ("error input", ["1", "a"]),
+             ("simple", ["--simple"] + data), ("medium", ["--medium"] + data),
+             ("complex", ["--complex"] + data), ("bench", ["--bench"] + data)]
+    for name, args in cases:
+        try:
+            p = subprocess.run(
+                ["valgrind", "--leak-check=full", "--error-exitcode=42", prog] + args,
+                capture_output=True, text=True, timeout=120)
+            report(f"valgrind {name}", p.returncode != 42)
+        except subprocess.TimeoutExpired:
+            report(f"valgrind {name}", False, "timeout")
+
+
+def test_checker(prog, checker):
+    print(f"\n{Y}== Bonus: checker =={X}")
+    if not os.path.exists(checker):
+        report("checker exists", False, f"{checker} not found")
+        return
+    cases = [
+        (["3", "2", "1", "0"], "rra\npb\nsa\nrra\npa\n", "OK\n", ""),
+        (["3", "2", "1", "0"], "sa\nrra\npb\n", "KO\n", ""),
+        (["1", "2", "3"], "", "OK\n", ""),
+        (["3", "2", "one", "0"], "", "", "Error\n"),
+        (["", "1"], "", "", "Error\n"),
+        (["1", "2", "2"], "", "", "Error\n"),
+        (["3", "2", "1"], "xx\n", "", "Error\n"),
+        (["3", "2", "1"], "sa \n", "", "Error\n"),
+        (["3", "2", "1"], "SA\n", "", "Error\n"),
+        ([], "", "", ""),
+    ]
+    for args, stdin, exp_out, exp_err in cases:
+        res = run(checker, args, stdin)
+        name = f"checker {args} <- {stdin!r}"
+        if res is None:
+            report(name, False, "timeout")
+            continue
+        out, err, _ = res
+        ok = out == exp_out and err == exp_err
+        report(name, ok, "" if ok else f"stdout={out!r} stderr={err!r}")
+    for flag in [None] + STRATS:
+        flags = [flag] if flag else []
+        data = gen_random(100)
+        res = run(prog, flags + [str(n) for n in data])
+        if res is None:
+            report(f"checker with {label(flag)}", False, "push_swap timeout")
+            continue
+        ops = res[0]
+        c = run(checker, [str(n) for n in data], ops)
+        report(f"push_swap {label(flag)} | checker -> OK", c is not None and c[0] == "OK\n")
+        c = run(checker, [str(n) for n in data], ops + "pb\n")
+        report(f"push_swap {label(flag)} + extra pb | checker -> KO",
+               c is not None and c[0] == "KO\n")
+
+
+# ------------------------------------------------------------------ main
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-p", "--program", default="./push_swap")
+    ap.add_argument("-c", "--checker", default="./checker")
+    ap.add_argument("-r", "--runs", type=int, default=30,
+                    help="random runs for the default strategy (others use runs/5)")
+    ap.add_argument("--valgrind", action="store_true")
+    ap.add_argument("--make", action="store_true", help="test Makefile and norminette")
+    ap.add_argument("--bonus", action="store_true", help="test the checker program")
+    opt = ap.parse_args()
+
+    if opt.make:
+        test_makefile()
+
+    if not os.path.exists(opt.program):
+        print(f"{R}Cannot find {opt.program}. Compile first (make).{X}")
+        sys.exit(1)
+
+    test_errors(opt.program)
+    test_quiet(opt.program)
+    test_formats(opt.program)
+    test_flags_basic(opt.program)
+    test_permutations(opt.program)
+    test_bench_mode(opt.program)
+    test_disorder_regimes(opt.program)
+    test_special_orders(opt.program)
+    test_random(opt.program, opt.runs)
+    if opt.valgrind:
+        test_valgrind(opt.program)
+    if opt.bonus:
+        test_checker(opt.program, opt.checker)
+
+    print(f"\n{Y}== Summary =={X}")
+    print(f"{G}passed: {passed}{X}   {R}failed: {failed}{X}   {Y}warnings: {warned}{X}")
+    sys.exit(1 if failed else 0)
+
+
+if __name__ == "__main__":
+    main()

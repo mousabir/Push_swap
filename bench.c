@@ -17,6 +17,7 @@ static void	ft_print_disorder(t_stats *c)
 	int	val;
 
 	val = (int)(c->disorder * 10000 + 0.5f);
+	ft_dprintf("Disorder : ");
 	ft_dprintf("%d.", val / 100);
 	if (val % 100 < 10)
 		ft_dprintf("0");
@@ -25,12 +26,14 @@ static void	ft_print_disorder(t_stats *c)
 
 static void	ft_print_strategy(t_option *op)
 {
-	if (op->simple == 1)
-		ft_dprintf("Simple O(n^2)\n");
+	if (op->adaptive == 1)
+		ft_dprintf("Strategy : Adaptive O(n^2)\n");
+	else if (op->simple == 1)
+		ft_dprintf("Strategy : Simple O(n^2)\n");
 	else if (op->medium == 1)
-		ft_dprintf("Medium O(n*sqrt(n))\n");
+		ft_dprintf("Strategy : Medium O(n*sqrt(n))\n");
 	else if (op->complex == 1)
-		ft_dprintf("Complex O(n log n)\n");
+		ft_dprintf("Strategy : Complex O(n log n)\n");
 }
 
 static void	ft_print_counts(t_stats *c)

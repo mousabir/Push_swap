@@ -12,6 +12,11 @@
 
 #include "push_swap.h"
 
+static int	ft_dputchar(char c)
+{
+	return (write(2, &c, 1));
+}
+
 static int	ft_dputnbr(int n)
 {
 	long	br;
@@ -21,16 +26,13 @@ static int	ft_dputnbr(int n)
 	count = 0;
 	if (br < 0)
 	{
-		count += write(2, "-", 1);
+		count += ft_dputchar('-');
 		br = -br;
 	}
-	count += ft_put_unsigned(br);
+	if (br >= 10)
+		ft_dputnbr(br / 10);
+	count += ft_dputchar((br % 10) + '0');
 	return (count);
-}
-
-static int	ft_dputchar(char c)
-{
-	return (write(2, &c, 1));
 }
 
 static int	chek_dformte(char c, va_list *traker)
@@ -49,7 +51,7 @@ static int	chek_dformte(char c, va_list *traker)
 		return (ft_put_adrss(va_arg(*traker, void *)));
 	if (c == 'u')
 		return (ft_put_unsigned(va_arg(*traker, unsigned int)));
-	return (ft_putchar(c));
+	return (ft_dputchar(c));
 }
 
 int	ft_dprintf(const char *formte, ...)
