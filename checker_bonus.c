@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   checker_bonus.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mousabir <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: ilazerou <ilazerou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/22 17:18:50 by mousabir          #+#    #+#             */
-/*   Updated: 2026/11/22 17:19:24 by mousabir         ###   ########.fr       */
+/*   Updated: 2026/11/24 21:36:30 by ilazerou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "checker.h"
-
 
 void	checker_free(t_list *stack)
 {
@@ -66,10 +65,10 @@ static void	print_result(int error, t_list *a, t_list *b)
 
 int	main(int argc, char **argv)
 {
-	t_list	*a;
-	t_list	*b;
-	t_option o;
-	int		error;
+	t_list		*a;
+	t_list		*b;
+	t_option	o;
+	int			error;
 
 	if (argc == 1)
 		return (0);

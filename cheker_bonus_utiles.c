@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   cheker_bonus_utiles.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mousabir <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: ilazerou <ilazerou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/22 17:20:51 by mousabir          #+#    #+#             */
-/*   Updated: 2026/11/22 17:21:00 by mousabir         ###   ########.fr       */
+/*   Updated: 2026/11/24 21:36:49 by ilazerou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,4 +54,3 @@ int	execute_push_swap(char *line, t_list **a, t_list **b)
 		return (0);
 	return (1);
 }
-

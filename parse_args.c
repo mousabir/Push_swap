@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_args.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mousabir <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: ilazerou <ilazerou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/22 17:22:35 by mousabir          #+#    #+#             */
-/*   Updated: 2026/11/22 17:22:38 by mousabir         ###   ########.fr       */
+/*   Updated: 2026/11/24 21:38:48 by ilazerou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ t_bool	cheek_option(t_option *list, char *argmnet)
 	else if (ft_strcmp(argmnet, "--adaptive") == 0)
 		flag = &list->adaptive;
 	if (flag == NULL)
-		return (0); 
+		return (0);
 	*flag = 1;
 	return (1);
 }
@@ -65,7 +65,6 @@ t_bool	chek_is_dgit(char *d)
 	}
 	return (1);
 }
-
 
 t_bool	check_args(char **argv, int argc, t_option *list, t_list *node)
 {

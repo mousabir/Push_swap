@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_args_utiles.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mousabir <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: ilazerou <ilazerou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/22 17:22:48 by mousabir          #+#    #+#             */
-/*   Updated: 2026/11/22 17:22:52 by mousabir         ###   ########.fr       */
+/*   Updated: 2026/11/24 21:39:22 by ilazerou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,7 @@ static int	add_arg(char *arg, t_option *list, t_list **node, int *find)
 	*find = 1;
 	return (1);
 }
+
 t_bool	has_dup(t_list *head)
 {
 	t_list	*cur;

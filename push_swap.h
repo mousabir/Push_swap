@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   push_swap.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mousabir <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: ilazerou <ilazerou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/22 17:26:15 by mousabir          #+#    #+#             */
-/*   Updated: 2026/11/22 17:26:17 by mousabir         ###   ########.fr       */
+/*   Updated: 2026/11/24 21:39:36 by ilazerou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ void		radix_pass(t_list **a, t_list **b, t_stats *c, int bit);
 float		ft_disorder(t_list *a);
 void		ft_adaptive(t_list **a, t_list **b, t_stats *c, t_option *op);
 void		ft_bench(t_stats *c, t_option *op);
-t_bool	parse_one_arg(char *arg, t_option *list, t_list **node, int *find);
-char	**ft_split(char *str, char c);
+t_bool		parse_one_arg(char *arg, t_option *list, t_list **node, int *find);
+char		**ft_split(char *str, char c);
 t_bool		chek_op(t_option *o);
 #endif

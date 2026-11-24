@@ -3,18 +3,18 @@
 /*                                                        :::      ::::::::   */
 /*   sort_semple.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mousabir <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: ilazerou <ilazerou@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/11/22 17:24:45 by mousabir          #+#    #+#             */
-/*   Updated: 2026/11/22 17:24:48 by mousabir         ###   ########.fr       */
+/*   Updated: 2026/11/24 21:40:07 by ilazerou         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "push_swap.h"
 
-t_bool chek_op(t_option *o)
+t_bool	chek_op(t_option *o)
 {
-	int fond;
+	int	fond;
 
 	fond = 0;
 	if (o->simple == 1)
@@ -63,7 +63,7 @@ t_option	*pre_option(t_option *o)
 	o->adaptive = 0;
 	o->bench = 0;
 	return (o);
-} 
+}
 
 void	bring_to_top(long pos, t_list **a, t_list **b, t_stats *c)
 {
