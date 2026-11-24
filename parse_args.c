@@ -23,12 +23,12 @@ t_bool	cheek_option(t_option *list, char *argmnet)
 		flag = &list->medium;
 	else if (ft_strcmp(argmnet, "--complex") == 0)
 		flag = &list->complex;
-	else if (ft_strcmp(argmnet, "--adaptive") == 0)
-		flag = &list->adaptive;
 	else if (ft_strcmp(argmnet, "--bench") == 0)
 		flag = &list->bench;
+	else if (ft_strcmp(argmnet, "--adaptive") == 0)
+		flag = &list->adaptive;
 	if (flag == NULL)
-		return (0);
+		return (0); 
 	*flag = 1;
 	return (1);
 }

@@ -12,6 +12,25 @@
 
 #include "push_swap.h"
 
+t_bool chek_op(t_option *o)
+{
+	int fond;
+
+	fond = 0;
+	if (o->simple == 1)
+		fond++;
+	if (o->complex == 1)
+		fond++;
+	if (o->medium == 1)
+		fond++;
+	if (o->adaptive == 1)
+		fond++;
+	if (fond > 1)
+		return (0);
+	else
+		return (1);
+}
+
 long	smallest_position(t_list *head)
 {
 	int		min;

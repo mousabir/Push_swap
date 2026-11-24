@@ -59,7 +59,7 @@ int	main_porpes(int argc, char *argv[], t_list *list, t_option *op)
 
 	init_stats(&c);
 	stack_b = NULL;
-	if (!check_args(argv, argc, pre_option(op), list))
+	if (!check_args(argv, argc, pre_option(op), list) || !chek_op(op))
 	{
 		free_list(list);
 		write(2, "Error\n", 6);

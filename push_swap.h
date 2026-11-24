@@ -96,4 +96,5 @@ void		ft_adaptive(t_list **a, t_list **b, t_stats *c, t_option *op);
 void		ft_bench(t_stats *c, t_option *op);
 t_bool	parse_one_arg(char *arg, t_option *list, t_list **node, int *find);
 char	**ft_split(char *str, char c);
+t_bool		chek_op(t_option *o);
 #endif
