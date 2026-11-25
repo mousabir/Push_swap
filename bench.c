@@ -12,6 +12,16 @@
 
 #include "push_swap.h"
 
+static void	ft_print_adaptive(t_option *op)
+{
+	if (op->simple == 1)
+		ft_dprintf("Strategy : Adaptive O(n^2)\n");
+	else if (op->medium == 2)
+		ft_dprintf("Strategy : Adaptive O(n*sqrt(n))\n");
+	else
+		ft_dprintf("Strategy : Adaptive O(n log n)\n");
+}
+
 static void	ft_print_disorder(t_stats *c)
 {
 	int	val;
@@ -27,7 +37,7 @@ static void	ft_print_disorder(t_stats *c)
 static void	ft_print_strategy(t_option *op)
 {
 	if (op->adaptive == 1)
-		ft_dprintf("Strategy : Adaptive O(n^2)\n");
+		ft_print_adaptive(op);
 	else if (op->simple == 1)
 		ft_dprintf("Strategy : Simple O(n^2)\n");
 	else if (op->medium == 1)
