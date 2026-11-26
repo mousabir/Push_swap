@@ -1,5 +1,3 @@
-# Push_swap
-
 *This project has been created as part of the 42 curriculum by mousabir , ilazerou.*
 
 ## Description
@@ -7,6 +5,20 @@
 Push_swap is a sorting algorithm project. The goal is to sort a stack of integers using a limited set of operations and the smallest possible number of moves.
 
 The project explores different sorting strategies and algorithm complexity.
+## Adaptive Strategy
+
+The adaptive strategy looks at the input first. Then it picks one of the three algorithms above.
+
+### Disorder
+
+Before any move, we compute the disorder of stack a. We look at every pair of numbers. If the bigger number comes before the smaller one, the pair is a mistake. The disorder is the number of mistakes divided by the number of pairs. It is 0 for a sorted list and 1 for a reversed list..
+### How we choose
+
+| Disorder | Algorithm | Complexity |
+|---|---|---|
+| below 0.2 | Selection sort | O(n^2) |
+| from 0.2 to below 0.5 | Chunk sort | O(n sqrt(n)) |
+| 0.5 or more | Radix sort | O(n log n) |
 
  ## checker : 
  is the bonus verification program for `push_swap`. It takes an initial list of unique integers representing stack `a`, reads newline-separated `push_swap` instructions (`sa`, `sb`, `ss`, `pa`, `pb`, `ra`, `rb`, `rr`, `rra`, `rrb`, `rrr`) from `stdin`, executes them on stacks `a` and `b`, and prints `OK\n` if stack `a` ends sorted in ascending order with stack `b` empty—or `KO\n` otherwise.

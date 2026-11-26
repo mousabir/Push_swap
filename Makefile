@@ -47,7 +47,7 @@ $(NAME): $(OBJS)
 $(BONUS_NAME): $(BONUS_OBJS)
 	$(CC) $(CFLAGS) $(BONUS_OBJS) -o $(BONUS_NAME)
 
-bonus: $(NAME) $(BONUS_NAME)
+bonus: $(BONUS_NAME)
 
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) -c $< -o $@

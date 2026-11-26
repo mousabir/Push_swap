@@ -16,7 +16,7 @@ static void	ft_print_adaptive(t_option *op)
 {
 	if (op->simple == 1)
 		ft_dprintf("Strategy : Adaptive O(n^2)\n");
-	else if (op->medium == 2)
+	else if (op->medium == 1)
 		ft_dprintf("Strategy : Adaptive O(n*sqrt(n))\n");
 	else
 		ft_dprintf("Strategy : Adaptive O(n log n)\n");
